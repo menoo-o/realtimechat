@@ -73,7 +73,7 @@ export default function LoginForm() {
             className="w-full mt-3 border border-gray-300 rounded-md px-4 py-2 relative overflow-hidden bg-white text-black transition-all duration-300 group"
           >
             <span className="relative z-10">Sign in with Google</span>
-            <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-red-500 via-yellow-400 to-green-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-md"></span>
+            <span className="absolute inset-0 bg-gradient-to-r from-blue-500 to-green-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-md"></span>
           </button>
 
           {state.error && (
