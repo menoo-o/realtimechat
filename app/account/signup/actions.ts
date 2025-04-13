@@ -26,10 +26,12 @@ export async function register( prevState: RegisterState,  formData: FormData): 
         first_name: firstName,
         last_name: lastname,
       },
-      emailRedirectTo: process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3000/auth/confirm'
-        : 'https://realtimechat-smoky.vercel.app/auth/confirm',
-    },
+      // emailRedirectTo: process.env.NODE_ENV === 'development'
+      //   ? 'http://localhost:3000/auth/confirm'
+      //   : 'https://realtimechat-smoky.vercel.app/auth/confirm',
+
+        emailRedirectTo: 'https://realtimechat-smoky.vercel.app/auth/confirm',
+      },
   });
 
 if (error) {
