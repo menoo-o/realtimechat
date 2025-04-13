@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const next = searchParams.get('next') ?? '/private';
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/account/login?error=no_code`);
+    return NextResponse.redirect(`${origin}/login?error=no_code`);
   }
 
   const supabase = await createClient();
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const {  error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
     console.error('Code exchange error:', error);
-    return NextResponse.redirect(`${origin}/account/login?error=auth_failed&message=${encodeURIComponent(error.message)}`);
+    return NextResponse.redirect(`${origin}/login?error=auth_failed&message=${encodeURIComponent(error.message)}`);
   }
 
   // Trigger handles userinfo population—no manual upsert needed
