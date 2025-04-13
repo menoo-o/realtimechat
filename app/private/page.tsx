@@ -12,6 +12,7 @@ export default async function PrivatePage() {
 
   return (
     <>
+      <h2>Dashboard</h2> <br />
       <p>Hello {data.user.email}</p>
       <br /><br />
       <LogoutButton /> {/* Client Component */}
