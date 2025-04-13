@@ -1,4 +1,3 @@
-
 // app/auth/confirm/route.ts
 import { NextRequest } from 'next/server';
 import { redirect } from 'next/navigation';
