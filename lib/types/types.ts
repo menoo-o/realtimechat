@@ -8,3 +8,9 @@ export type RegisterState = {
     error: string | null;
   };
   
+
+  export interface Message {
+    id: string;
+    content: string;
+    created_at: string;
+  }
