@@ -12,8 +12,7 @@ export async function GET(request: NextRequest) {
     redirect('/error?reason=missing_code');
   }
 
-  // No need for verifyOtp—Supabase already verified the code before redirecting here
-  // Trigger has already populated userinfo
+  
 
   // Redirect to /login
   redirect(next);
