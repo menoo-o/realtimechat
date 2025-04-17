@@ -28,7 +28,7 @@ export async function register( prevState: RegisterState,  formData: FormData): 
       },
       emailRedirectTo: process.env.NODE_ENV === 'development'
         ? 'http://localhost:3000/auth/confirm'
-        : 'https://realtimechat-smoky.vercel.app/auth/confirm',
+        : 'https://template-setup.vercel.app/auth/confirm',
     },
   });
 

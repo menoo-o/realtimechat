@@ -8,7 +8,7 @@ export async function sendResetEmail(email: string) {
 const { error } = await supabase.auth.resetPasswordForEmail(email, {
   redirectTo: process.env.NODE_ENV === 'development'
   ? 'http://localhost:3000/account/update-password'
-  : 'https://realtimechat-smoky.vercel.app/account/update-password',
+  : 'https://template-setup.vercel.app/account/update-password',
 
 });
 
