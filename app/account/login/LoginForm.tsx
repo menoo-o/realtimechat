@@ -19,7 +19,7 @@ export default function LoginForm() {
     const supabase =await createClient();
     const redirectTo = process.env.NODE_ENV === 'development'
       ? 'http://localhost:3000/auth/callback'
-      : 'https://template-setup.vercel.app/auth/callback';
+      : 'https://realtimechat-smoky.vercel.app/auth/callback';
     
     await supabase.auth.signInWithOAuth({
       provider: 'google',
