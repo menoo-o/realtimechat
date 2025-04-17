@@ -14,5 +14,3 @@ const { error } = await supabase.auth.resetPasswordForEmail(email, {
 
   return { error: error?.message || null };
 }
-
-// revised reset page

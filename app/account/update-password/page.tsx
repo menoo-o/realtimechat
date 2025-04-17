@@ -39,7 +39,7 @@ function PasswordReset() {
       <form
         onSubmit={(e) => {
           handleSubmit(e);
-          router.push("/private");
+          router.push("/account/login");
         }}
         className="space-y-5"
       >
