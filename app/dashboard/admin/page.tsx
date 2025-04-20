@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h2 className="text-xl mb-4">All Users</h2>
-      <table className="w-full border">
+      {/* <table className="w-full border">
         <thead>
           <tr>
             <th className="border p-2">First Name</th>
@@ -71,7 +71,7 @@ export default async function AdminDashboard() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> */}
       <MessageSender />
     </div>
   );
