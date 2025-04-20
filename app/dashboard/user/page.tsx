@@ -21,13 +21,13 @@
 
 'use client';
 
-
 type Message = {
   id: number;
   content: string;
   sender_id: string;
   inserted_at: string;
 };
+
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
@@ -44,9 +44,9 @@ export default function UserDashboard() {
     // Authorize the realtime client (private channels)
     supabase.realtime.setAuth();
 
-    // Subscribe to the "chat-room" broadcast channel
+    // Subscribe to the "chatroom" broadcast channel
     const subscription = supabase
-      .channel('chat-room', { config: { private: true } })
+      .channel('chatroom') // Remove 'private: true' since you're broadcasting publicly
       .on('broadcast', { event: 'INSERT' }, ({ payload }) => {
         setMessages((msgs) => [...msgs, payload.new]);
       })
@@ -57,6 +57,7 @@ export default function UserDashboard() {
       supabase.removeChannel(subscription);
     };
   }, []);
+
 
   return (
     <div>
