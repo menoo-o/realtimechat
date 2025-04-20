@@ -41,22 +41,21 @@ export default function UserDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    // Authorize the realtime client (private channels)
-    supabase.realtime.setAuth();
-
-    // Subscribe to the "chatroom" broadcast channel
-    const subscription = supabase
-      .channel('chatroom') // Remove 'private: true' since you're broadcasting publicly
+    supabase.realtime.setAuth(); // only if private channels
+  
+    const channel = supabase
+      .channel('chatroom')
       .on('broadcast', { event: 'INSERT' }, ({ payload }) => {
-        setMessages((msgs) => [...msgs, payload.new]);
+        console.log('🔴 Received:', payload);
+        setMessages((msgs) => [...msgs, payload.new]); // Make sure `payload.new` has content
       })
       .subscribe();
-
-    // Cleanup on unmount
+  
     return () => {
-      supabase.removeChannel(subscription);
+      supabase.removeChannel(channel);
     };
   }, []);
+  
 
 
   return (
