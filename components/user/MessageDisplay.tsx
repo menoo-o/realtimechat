@@ -35,38 +35,43 @@ export default function MessageDisplay() {
 
   // Subscribe to real-time changes
   useEffect(() => {
-    // Ensure auth is set
-    supabase.realtime.setAuth();
+    const setupRealtime = async () => {
+      // Set auth for Realtime
+      await supabase.realtime.setAuth();
 
-    const channel = supabase
-      .channel('topic:announcements', { config: { private: false } })
-      .on('broadcast', { event: 'INSERT' }, (payload) => {
-        console.log('Received INSERT event:', payload); // Debug
-        const newMessage = payload.new;
-        if (newMessage && newMessage.id && newMessage.text && newMessage.timestamp) {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: newMessage.id,
-              text: newMessage.text,
-              timestamp: newMessage.timestamp,
-            },
-          ]);
-        }
-      })
-      .subscribe((status) => {
-        console.log('Subscription status:', status); // Debug
-        if (status !== 'SUBSCRIBED') {
-          console.error('Not subscribed:', status);
-        } else {
-          console.log('Subscribed to announcements');
-        }
-      });
+      const changes = supabase
+        .channel('topic:announcements', { config: { private: false } })
+        .on('broadcast', { event: 'INSERT' }, (payload) => {
+          console.log('Received INSERT event:', payload); // Debug
+          const newMessage = payload.new;
+          if (newMessage && newMessage.id && newMessage.text && newMessage.timestamp) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: newMessage.id,
+                text: newMessage.text,
+                timestamp: newMessage.timestamp,
+              },
+            ]);
+          }
+        })
+        .subscribe((status) => {
+          console.log('Subscription status:', status); // Debug
+          if (status !== 'SUBSCRIBED') {
+            console.error('Not subscribed:', status);
+          } else {
+            console.log('Subscribed to announcements');
+          }
+        });
 
-    return () => {
-      console.log('Unsubscribing from channel'); // Debug
-      supabase.removeChannel(channel);
+      // Cleanup
+      return () => {
+        console.log('Unsubscribing from channel'); // Debug
+        supabase.removeChannel(changes);
+      };
     };
+
+    setupRealtime();
   }, [supabase]);
 
   return (
