@@ -14,21 +14,26 @@ export default function MessageSender() {
     setIsSending(true);
 
     try {
-      // Insert into announcements table
-      const { error } = await supabase
+      // Insert into announcements table for persistence
+      const { error: insertError } = await supabase
         .from('announcements')
         .insert({ text: message, topic: 'announcements' });
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      // Confirm WebSocket subscription before sending (optional)
+      // Send via WebSocket after subscribing
       const channel = supabase.channel('topic:announcements', { config: { private: false } });
       channel.subscribe((status) => {
         if (status !== 'SUBSCRIBED') {
           console.error('Not subscribed:', status);
           return;
         }
-        console.log('WebSocket subscribed, message inserted');
+        console.log('WebSocket subscribed, sending message');
+        channel.send({
+          type: 'broadcast',
+          event: 'new_message',
+          payload: { text: message, timestamp: new Date().toISOString() },
+        });
       });
 
       setMessage('');

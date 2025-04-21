@@ -36,21 +36,20 @@ export default function MessageDisplay() {
   // Subscribe to real-time changes
   useEffect(() => {
     const setupRealtime = async () => {
-      // Set auth for Realtime
       await supabase.realtime.setAuth();
 
       const changes = supabase
         .channel('topic:announcements', { config: { private: false } })
-        .on('broadcast', { event: 'INSERT' }, (payload) => {
-          console.log('Received INSERT event:', payload); // Debug
-          const newMessage = payload.new;
-          if (newMessage && newMessage.id && newMessage.text && newMessage.timestamp) {
+        .on('broadcast', { event: 'new_message' }, (payload) => {
+          console.log('Received new_message event:', payload); // Debug
+          const { text, timestamp } = payload.payload;
+          if (text && timestamp) {
             setMessages((prev) => [
               ...prev,
               {
-                id: newMessage.id,
-                text: newMessage.text,
-                timestamp: newMessage.timestamp,
+                id: `${timestamp}-${text.slice(0, 10)}`, // Temporary ID for UI
+                text,
+                timestamp,
               },
             ]);
           }
@@ -64,7 +63,6 @@ export default function MessageDisplay() {
           }
         });
 
-      // Cleanup
       return () => {
         console.log('Unsubscribing from channel'); // Debug
         supabase.removeChannel(changes);
