@@ -35,21 +35,27 @@ export default function MessageDisplay() {
 
   // Subscribe to real-time changes
   useEffect(() => {
+    // Ensure auth is set
     supabase.realtime.setAuth();
 
     const channel = supabase
       .channel('topic:announcements', { config: { private: false } })
       .on('broadcast', { event: 'INSERT' }, (payload) => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: payload.new.id,
-            text: payload.new.text,
-            timestamp: payload.new.timestamp,
-          },
-        ]);
+        console.log('Received INSERT event:', payload); // Debug
+        const newMessage = payload.new;
+        if (newMessage && newMessage.id && newMessage.text && newMessage.timestamp) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: newMessage.id,
+              text: newMessage.text,
+              timestamp: newMessage.timestamp,
+            },
+          ]);
+        }
       })
       .subscribe((status) => {
+        console.log('Subscription status:', status); // Debug
         if (status !== 'SUBSCRIBED') {
           console.error('Not subscribed:', status);
         } else {
@@ -58,6 +64,7 @@ export default function MessageDisplay() {
       });
 
     return () => {
+      console.log('Unsubscribing from channel'); // Debug
       supabase.removeChannel(channel);
     };
   }, [supabase]);
