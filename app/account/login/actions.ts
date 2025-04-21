@@ -33,10 +33,7 @@ export async function getUserRoleAndRedirect() {
   }
 }
 
-export async function login(
-  prevState: LoginState,
-  formData: FormData
-): Promise<LoginState> {
+export async function login( prevState: LoginState, formData: FormData): Promise<LoginState> {
   const supabase = await createClient();
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;

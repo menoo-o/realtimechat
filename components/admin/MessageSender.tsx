@@ -10,17 +10,28 @@ export default function MessageSender() {
   const supabase = createClient();
 
   const handleSend = async () => {
-    if (!message.trim()) return; // Prevent empty messages
+    if (!message.trim()) return;
     setIsSending(true);
 
     try {
-      // Send Broadcast message
-      await supabase.channel('topic:announcements').send({
-        type: 'broadcast',
-        event: 'new_message',
-        payload: { text: message, timestamp: new Date().toISOString() },
+      // Insert into announcements table
+      const { error } = await supabase
+        .from('announcements')
+        .insert({ text: message, topic: 'announcements' });
+
+      if (error) throw error;
+
+      // Confirm WebSocket subscription before sending (optional)
+      const channel = supabase.channel('topic:announcements', { config: { private: false } });
+      channel.subscribe((status) => {
+        if (status !== 'SUBSCRIBED') {
+          console.error('Not subscribed:', status);
+          return;
+        }
+        console.log('WebSocket subscribed, message inserted');
       });
-      setMessage(''); // Clear textarea
+
+      setMessage('');
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {
