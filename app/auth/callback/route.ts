@@ -2,10 +2,12 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
+//google auth redirect after successfull code exchange
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/';
+  // how to redirect based on who's loging in! do we check user role here?
+  const next = searchParams.get('next') ?? '/account/login';
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=no_code`);
