@@ -1,91 +1,79 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
-interface Message {
-  id: string;
-  text: string;
-  timestamp: string;
-}
-
-export default function AdminMessageDisplay() {
-  const [messages, setMessages] = useState<Message[]>([]);
+export default function MessageSender() {
+  const [message, setMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
   const supabase = createClient();
 
-  // Fetch initial messages
-  useEffect(() => {
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from('announcements')
-        .select('id, text, timestamp')
-        .eq('topic', 'announcements')
-        .order('timestamp', { ascending: true });
+  // Persistent channel
+  const [channel] = useState(() => supabase.channel('topic:announcements', {
+    config: { broadcast: { self: true }, private: false },
+  }));
 
-      if (error) {
-        console.error('Admin failed to fetch messages:', error);
+  useEffect(() => {
+    // Subscribe to channel
+    channel.subscribe((status) => {
+      if (status !== 'SUBSCRIBED') {
+        console.error('MessageSender not subscribed:', status);
         return;
       }
-      setMessages(data || []);
+      console.log('MessageSender subscribed to topic:announcements');
+    });
+
+    // Cleanup
+    return () => {
+      console.log('Unsubscribing MessageSender from topic:announcements');
+      supabase.removeChannel(channel);
     };
+  }, [channel, supabase]);
 
-    fetchMessages();
-  }, [supabase]);
+  const handleSend = async () => {
+    if (!message.trim()) return;
+    setIsSending(true);
 
-  // Subscribe to real-time broadcasts
-  useEffect(() => {
-    const setupRealtime = async () => {
-      await supabase.realtime.setAuth();
+    try {
+      // Insert into announcements
+      const { error: insertError } = await supabase
+        .from('announcements')
+        .insert({ text: message, topic: 'announcements' });
 
-      const channel = supabase
-        .channel('topic:announcements', { config: { broadcast: { self: true }, private: false } })
-        .on('broadcast', { event: 'new_message' }, (payload) => {
-          console.log('AdminMessageDisplay received new_message:', payload);
-          const { text, timestamp } = payload.payload;
-          if (text && timestamp) {
-            setMessages((prev) => [
-              ...prev,
-              {
-                id: `${timestamp}-${text.slice(0, 10)}`,
-                text,
-                timestamp,
-              },
-            ]);
-          }
-        })
-        .subscribe((status) => {
-          console.log('Admin subscription status:', status);
-          if (status !== 'SUBSCRIBED') {
-            console.error('Admin not subscribed:', status);
-          } else {
-            console.log('Admin subscribed to topic:announcements');
-          }
-        });
+      if (insertError) throw insertError;
 
-      return () => {
-        console.log('Unsubscribing Admin from topic:announcements');
-        supabase.removeChannel(channel);
-      };
-    };
+      // Send broadcast
+      channel.send({
+        type: 'broadcast',
+        event: 'new_message',
+        payload: { text: message, timestamp: new Date().toISOString() },
+      });
 
-    setupRealtime();
-  }, [supabase]);
-
+      setMessage('');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <div className="mt-4">
-      <h2 className="text-xl mb-2">Admin Announcements</h2>
-      {messages.length === 0 ? (
-        <p>No announcements yet.</p>
-      ) : (
-        <ul className="border p-2">
-          {messages.map((msg) => (
-            <li key={msg.id} className="mb-2">
-              <strong>{new Date(msg.timestamp).toLocaleString()}:</strong> {msg.text}
-            </li>
-          ))}
-        </ul>
-      )}
-    </ div>
+      <h2 className="text-xl mb-2">Send Announcement</h2>
+      <textarea
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Type your message..."
+        className="border p-2 w-full h-24"
+        disabled={isSending}
+      />
+      <button
+        onClick={handleSend}
+        disabled={isSending || !message.trim()}
+        className="mt-2 bg-blue-500 text-white p-2 rounded disabled:bg-gray-400"
+      >
+        {isSending ? 'Sending...' : 'Send'}
+      </button>
+    </div>
   );
 }
