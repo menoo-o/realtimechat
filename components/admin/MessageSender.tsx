@@ -28,7 +28,7 @@ export default function MessageSender() {
           console.error('Not subscribed:', status);
           return;
         }
-        console.log('WebSocket subscribed, sending message');
+        // console.log('WebSocket subscribed, sending message');
         channel.send({
           type: 'broadcast',
           event: 'new_message',
