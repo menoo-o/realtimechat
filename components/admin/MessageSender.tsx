@@ -22,13 +22,21 @@ export default function MessageSender() {
       if (insertError) throw insertError;
 
       // Send via WebSocket after subscribing
-      const channel = supabase.channel('topic:announcements', { config: { private: false } });
+      const channel = supabase.
+      channel ('topic:announcements', 
+              { config: 
+                  { 
+                    private: false,
+                    broadcast: {self: true}, 
+                  } 
+              });
+              
       channel.subscribe((status) => {
         if (status !== 'SUBSCRIBED') {
           console.error('Not subscribed:', status);
           return;
         }
-        console.log('WebSocket subscribed, sending message');
+        // console.log('WebSocket subscribed, sending message');
         channel.send({
           type: 'broadcast',
           event: 'new_message',

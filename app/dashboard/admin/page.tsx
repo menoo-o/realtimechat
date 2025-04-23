@@ -40,7 +40,7 @@
 // app/dashboard/admin/page.tsx
 import { getAdminDashboardData } from './loaders';
 import MessageSender from '@/components/admin/MessageSender';
-
+import MessageDisplay from '@/components/user/MessageDisplay';
 export default async function AdminDashboard() {
   const clients = await getAdminDashboardData();
   if (!clients.length) {
@@ -72,7 +72,9 @@ export default async function AdminDashboard() {
           ))}
         </tbody>
       </table> */}
-      <MessageSender />
+      <MessageSender /> <br /><br />
+      {/* Msgs display */}
+      <MessageDisplay />
     </div>
   );
 }
