@@ -118,20 +118,18 @@ export default function MessageSender() {
 
     try {
       // Insert into announcements
-      const { data, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('announcements')
         .insert({ text: message, topic: 'announcements' })
-        .select()
-        .single();
-
+        
       if (insertError) throw insertError;
 
       // Send broadcast (optional, as trigger handles it)
       channel.send({
         type: 'broadcast',
         event: 'new_message',
-        payload: { id: data.id, text: message, timestamp: data.timestamp },
-      });
+        payload: { text: message, timestamp: new Date().toISOString() },
+     });
 
       setMessage('');
     } catch (error) {
