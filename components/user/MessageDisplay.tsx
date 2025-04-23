@@ -38,7 +38,7 @@ export default function MessageDisplay() {
       await supabase.realtime.setAuth();
 
       const channel = supabase
-        .channel('topic:announcements', { config: { broadcast: { self: true }, private: false } })
+        .channel('topic:announcements', { config: { broadcast: { self: true }, private: true } })
         .on('broadcast', { event: 'new_message' }, (payload) => {
           console.log('MessageDisplay received new_message:', payload);
           const { text, timestamp } = payload.payload;

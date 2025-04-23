@@ -22,7 +22,7 @@ export default function MessageSender() {
 
       // Set up broadcast channel with self: true
       const channel = supabase.channel('topic:announcements', {
-        config: { broadcast: { self: true }, private: false },
+        config: { broadcast: { self: true }, private: true },
       });
 
       // Listen for broadcast events
