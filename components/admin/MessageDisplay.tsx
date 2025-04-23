@@ -1,4 +1,4 @@
-'use_client';
+'use client';
 
 // 'use client';
 
