@@ -1,4 +1,3 @@
-// components/admin/MessageSender.tsx
 'use client';
 
 import { useState } from 'react';
@@ -14,29 +13,35 @@ export default function MessageSender() {
     setIsSending(true);
 
     try {
-      // Insert into announcements table for persistence
+      // Insert into announcements for persistence
       const { error: insertError } = await supabase
         .from('announcements')
         .insert({ text: message, topic: 'announcements' });
 
       if (insertError) throw insertError;
 
-      // Send via WebSocket after subscribing
-      const channel = supabase.
-      channel ('topic:announcements', 
-              { config: 
-                  { 
-                    private: false,
-                    broadcast: {self: true}, 
-                  } 
-              });
-              
+      // Set up broadcast channel with self: true
+      const channel = supabase.channel('topic:announcements', {
+        config: { broadcast: { self: true }, private: false },
+      });
+
+      // Listen for broadcast events
+      channel.on('broadcast', { event: 'new_message' }, (payload) => {
+        console.log('MessageSender received new_message:', payload);
+        const { text, timestamp } = payload.payload;
+        if (text && timestamp) {
+          // Note: UI update handled by MessageDisplay; log for debugging
+          console.log(`Broadcast received: ${text} at ${timestamp}`);
+        }
+      });
+
+      // Subscribe and send broadcast
       channel.subscribe((status) => {
         if (status !== 'SUBSCRIBED') {
           console.error('Not subscribed:', status);
           return;
         }
-        // console.log('WebSocket subscribed, sending message');
+        console.log('WebSocket subscribed, sending message');
         channel.send({
           type: 'broadcast',
           event: 'new_message',

@@ -1,4 +1,3 @@
-// components/user/MessageDisplay.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -33,21 +32,21 @@ export default function MessageDisplay() {
     fetchMessages();
   }, [supabase]);
 
-  // Subscribe to real-time changes
+  // Subscribe to real-time broadcast
   useEffect(() => {
     const setupRealtime = async () => {
       await supabase.realtime.setAuth();
 
-      const changes = supabase
-        .channel('topic:announcements', { config: { private: false } })
+      const channel = supabase
+        .channel('topic:announcements', { config: { broadcast: { self: true }, private: false } })
         .on('broadcast', { event: 'new_message' }, (payload) => {
-          console.log('Received new_message event:', payload); // Debug
+          console.log('MessageDisplay received new_message:', payload);
           const { text, timestamp } = payload.payload;
           if (text && timestamp) {
             setMessages((prev) => [
               ...prev,
               {
-                id: `${timestamp}-${text.slice(0, 10)}`, // Temporary ID for UI
+                id: `${timestamp}-${text.slice(0, 10)}`,
                 text,
                 timestamp,
               },
@@ -55,17 +54,17 @@ export default function MessageDisplay() {
           }
         })
         .subscribe((status) => {
-          console.log('Subscription status:', status); // Debug
+          console.log('Subscription status for topic:announcements:', status);
           if (status !== 'SUBSCRIBED') {
             console.error('Not subscribed:', status);
           } else {
-            console.log('Subscribed to announcements');
+            console.log('Subscribed to topic:announcements');
           }
         });
 
       return () => {
-        console.log('Unsubscribing from channel'); // Debug
-        supabase.removeChannel(changes);
+        console.log('Unsubscribing from topic:announcements');
+        supabase.removeChannel(channel);
       };
     };
 
