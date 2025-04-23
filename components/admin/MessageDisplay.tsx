@@ -1,3 +1,5 @@
+'use_client';
+
 // 'use client';
 
 // import { useEffect, useState } from 'react';
@@ -90,7 +92,7 @@
 //   );
 // }
 
-'use_client';
+
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
