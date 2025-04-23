@@ -1,4 +1,4 @@
-'use client';
+'use_client';
 
 import MessageSender from '@/components/admin/MessageSender';
 import MessageDisplay from '@/components/user/MessageDisplay';

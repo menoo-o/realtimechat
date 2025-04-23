@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Template Setup",
+  title: "Realtime chatbox",
   description: "A work in progress",
 };
 
