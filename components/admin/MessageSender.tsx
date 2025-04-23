@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
 export default function MessageSender() {
@@ -8,41 +8,45 @@ export default function MessageSender() {
   const [isSending, setIsSending] = useState(false);
   const supabase = createClient();
 
+  // Persistent channel
+  const [channel] = useState(() => supabase.channel('topic:announcements', {
+    config: { broadcast: { self: true }, private: false },
+  }));
+
+  useEffect(() => {
+    // Subscribe to channel
+    channel.subscribe((status) => {
+      if (status !== 'SUBSCRIBED') {
+        console.error('MessageSender not subscribed:', status);
+        return;
+      }
+      console.log('MessageSender subscribed to topic:announcements');
+    });
+
+    // Cleanup
+    return () => {
+      console.log('Unsubscribing MessageSender from topic:announcements');
+      supabase.removeChannel(channel);
+    };
+  }, [channel, supabase]);
+
   const handleSend = async () => {
     if (!message.trim()) return;
     setIsSending(true);
 
     try {
-      // Insert into announcements for persistence
+      // Insert into announcements
       const { error: insertError } = await supabase
         .from('announcements')
         .insert({ text: message, topic: 'announcements' });
 
       if (insertError) throw insertError;
 
-      // Set up broadcast channel with self: true
-      const channel = supabase.channel('topic:announcements', {
-        config: { broadcast: { self: true }, private: true },
-      });
-
-      // Listen for broadcast events
-      channel.on('broadcast', { event: 'new_message' }, (payload) => {
-        console.log('MessageSender received new_message:', payload);
-        // UI updates handled by MessageDisplay; log for debugging
-      });
-
-      // Subscribe and send broadcast
-      channel.subscribe((status) => {
-        if (status !== 'SUBSCRIBED') {
-          console.error('Not subscribed:', status);
-          return;
-        }
-        console.log('WebSocket subscribed, sending message');
-        channel.send({
-          type: 'broadcast',
-          event: 'new_message',
-          payload: { text: message, timestamp: new Date().toISOString() },
-        });
+      // Send broadcast
+      channel.send({
+        type: 'broadcast',
+        event: 'new_message',
+        payload: { text: message, timestamp: new Date().toISOString() },
       });
 
       setMessage('');
