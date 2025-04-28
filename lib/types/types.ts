@@ -17,6 +17,17 @@ export interface UserInfo {
     email: string;
     email_confirmed_at: string | null;
   }
-  
 
   
+  
+// Realtime Msgs
+  export interface Message {
+    id: string;
+    text: string;
+    timestamp: string;
+  }
+
+  // authID
+  export type UserId = {
+    authId: string;
+  }

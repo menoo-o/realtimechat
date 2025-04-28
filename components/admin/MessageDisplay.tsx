@@ -2,37 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { Message } from '@/lib/types/types';
+import { MessageList, Loading } from '../AnnouncementsWrapper/MessageList';
 
-interface Message {
-  id: string;
-  text: string;
-  timestamp: string;
-}
 
 import { Suspense  } from 'react';
-
-// Loading component to show while messages are loading
-function Loading() {
-  return <div className="text-gray-500">Loading announcements...</div>;
-}
-
-// Wrap the message display logic in a component that can be suspended
-function MessageList({ messages }: { messages: Message[] }) {
-  // This component will suspend until messages are available
-  if (messages.length === 0) {
-    return <p>No announcements yet.</p>;
-  }
-
-  return (
-    <ul className="border p-2">
-      {messages.map((msg) => (
-        <li key={msg.id} className="mb-2">
-          <strong>{new Date(msg.timestamp).toLocaleString()}:</strong> {msg.text}
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 export default function AdminMessageDisplay() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -52,7 +26,7 @@ export default function AdminMessageDisplay() {
           .order('timestamp', { ascending: true });
 
         if (error) {
-          console.error('Admin failed to fetch messages:', error);
+          console.error('failed to fetch messages:', error);
           return;
         }
         setMessages(data || []);

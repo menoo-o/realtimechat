@@ -3,36 +3,41 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { Message } from '@/lib/types/types';
+import { UserId } from '@/lib/types/types';
+import { Suspense  } from 'react';
+import { MessageList, Loading } from '../AnnouncementsWrapper/MessageList';
 
-interface Message {
-  id: string;
-  text: string;
-  timestamp: string;
-}
 
-type UserId = {
-  authId: string;
-}
+
 
 //user message display
 export default function MessageDisplay({authId}: UserId) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
 
   // Fetch initial messages
   useEffect(() => {
     const fetchMessages = async () => {
+      setIsLoading(true)
+    try{
       const { data, error } = await supabase
-        .from('announcements')
-        .select('id, text, timestamp')
-        .eq('topic', 'announcements')
-        .order('timestamp', { ascending: true });
+      .from('announcements')
+      .select('id, text, timestamp')
+      .eq('topic', 'announcements')
+      .order('timestamp', { ascending: true });
 
-      if (error) {
-        console.error('Failed to fetch messages:', error);
-        return;
-      }
-      setMessages(data || []);
+    if (error) {
+      console.error('Failed to fetch messages:', error);
+      return;
+    }
+    setMessages(data || []);
+    }
+    finally {
+      setIsLoading(false);
+    }
+     
     };
 
     fetchMessages();
@@ -81,8 +86,7 @@ export default function MessageDisplay({authId}: UserId) {
   
             // Track user presence
             await changes.track(userStatus); // Track user's state to the channel
-            console.log('User state tracked:', userStatus);
-            console.log('Subscribed to announcements');
+           
           }
         });
 
@@ -93,22 +97,19 @@ export default function MessageDisplay({authId}: UserId) {
     };
 
     setupRealtime();
-  }, [supabase]);
+  }, [supabase, authId]);
 
   return (
     <div className="mt-4">
-      <h2 className="text-xl mb-2">Announcements</h2>
-      {messages.length === 0 ? (
-        <p>No announcements yet.</p>
-      ) : (
-        <ul className="border p-2">
-          {messages.map((msg) => (
-            <li key={msg.id} className="mb-2">
-              <strong>{new Date(msg.timestamp).toLocaleString()}:</strong> {msg.text}
-            </li>
-          ))}
-        </ul>
-      )}
+      <h2 className="text-xl mb-2"> Announcements</h2>
+      
+      <Suspense fallback={<Loading />}>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <MessageList messages={messages} />
+        )}
+      </Suspense>
     </div>
   );
 }
