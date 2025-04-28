@@ -14,7 +14,7 @@ export default async function UserDashboard() {
   return (
     <div>
       <ProfileInfo info={info} />
-      <MessageDisplay />
+      <MessageDisplay authId={info.id} />
     </div>
   );
 }

@@ -10,8 +10,12 @@ interface Message {
   timestamp: string;
 }
 
+type UserId = {
+  authId: string;
+}
+
 //user message display
-export default function MessageDisplay() {
+export default function MessageDisplay({authId}: UserId) {
   const [messages, setMessages] = useState<Message[]>([]);
   const supabase = createClient();
 
@@ -71,7 +75,7 @@ export default function MessageDisplay() {
             console.error('Not subscribed:', status);
           } else {
             const userStatus = {
-              user: `a81a0356-49b3-46fe-81b1-ea30b1f8cdd2`, // Replace with actual user ID if you have authentication
+              user: {authId}, // Hardcoded id and it is working but how to track every other user?
               online_at: new Date().toISOString(),
             };
   
