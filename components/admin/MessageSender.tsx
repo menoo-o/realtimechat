@@ -9,7 +9,8 @@ export default function MessageSender() {
   const supabase = createClient();
 
   // Persistent channel
-  const [channel] = useState(() => supabase.channel('topic:announcements', {
+  const [channel] = useState(() => 
+    supabase.channel('topic:announcements', {
     config: { broadcast: { self: true }, private: false },
   }));
 

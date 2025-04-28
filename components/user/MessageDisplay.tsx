@@ -42,7 +42,7 @@ export default function MessageDisplay() {
         .channel('topic:announcements', { 
           config: {
              private: false, 
-             presence: { key: `user-${Math.random()}` }, // ✅ Add presence key here
+             presence: {}, // ✅ Add presence key here
             
             }, 
             
@@ -62,13 +62,13 @@ export default function MessageDisplay() {
           }
         })
 
-       await changes.subscribe(async (status) => {
+       changes.subscribe(async (status) => {
           console.log('Subscription status:', status); // Debug
           if (status !== 'SUBSCRIBED') {
             console.error('Not subscribed:', status);
           } else {
             const userStatus = {
-              user: 'user-1', // Replace with actual user ID if you have authentication
+              user: `user-${Math.random()}`, // Replace with actual user ID if you have authentication
               online_at: new Date().toISOString(),
             };
   

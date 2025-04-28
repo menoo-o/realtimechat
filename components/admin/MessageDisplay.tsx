@@ -44,9 +44,6 @@ export default function AdminMessageDisplay() {
           config: { 
             broadcast: { self: true }, 
             private: false,
-            presence: {
-              key: `admin-${Math.random()}`, // admin also joins
-            },
           } })
         .on('broadcast', { event: 'new_message' }, (payload) => {
          
