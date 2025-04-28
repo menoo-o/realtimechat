@@ -67,6 +67,15 @@ export default function AdminMessageDisplay() {
           const state = channel.presenceState(); // Get the list of online users
           setOnlineUsers(Object.keys(state).length); // Count the users (keys are the user IDs)
         })
+        .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+          console.log('join', key, newPresences)
+          setOnlineUsers((prevCount) => prevCount + 1);
+        })
+        .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+          console.log('leave', key, leftPresences)
+          setOnlineUsers((prevCount) => prevCount - 1); // Decrement the count
+        })
+      
         .subscribe((status) => {
           console.log('Admin subscription status:', status);
           if (status !== 'SUBSCRIBED') {
@@ -85,27 +94,7 @@ export default function AdminMessageDisplay() {
     setupRealtime();
   }, [supabase]);
 
-  // Optional polling (disabled, as broadcasts are preferred)
-  /*
-  useEffect(() => {
-    const pollMessages = async () => {
-      const { data, error } = await supabase
-        .from('announcements')
-        .select('id, text, timestamp')
-        .eq('topic', 'announcements')
-        .order('timestamp', { ascending: true });
 
-      if (error) {
-        console.error('Admin polling failed:', error);
-        return;
-      }
-      setMessages(data || []);
-    };
-
-    const interval = setInterval(pollMessages, 5000); // Poll every 5 seconds
-    return () => clearInterval(interval);
-  }, [supabase]);
-  */
 
   return (
     <div className="mt-4">
