@@ -10,6 +10,7 @@ interface Message {
   timestamp: string;
 }
 
+//user message display
 export default function MessageDisplay() {
   const [messages, setMessages] = useState<Message[]>([]);
   const supabase = createClient();
@@ -48,7 +49,9 @@ export default function MessageDisplay() {
             
           })
         .on('broadcast', { event: 'new_message' }, (payload) => {
+
           console.log('Received new_message event:', payload); // Debug
+
           const { text, timestamp } = payload.payload;
           if (text && timestamp) {
             setMessages((prev) => [
@@ -68,7 +71,7 @@ export default function MessageDisplay() {
             console.error('Not subscribed:', status);
           } else {
             const userStatus = {
-              user: `user-${Math.random()}`, // Replace with actual user ID if you have authentication
+              user: `a81a0356-49b3-46fe-81b1-ea30b1f8cdd2`, // Replace with actual user ID if you have authentication
               online_at: new Date().toISOString(),
             };
   
