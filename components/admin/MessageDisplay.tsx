@@ -11,6 +11,8 @@ interface Message {
 
 export default function AdminMessageDisplay() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<number>(0);
+
   const supabase = createClient();
 
   // Fetch initial messages
@@ -38,9 +40,16 @@ export default function AdminMessageDisplay() {
       await supabase.realtime.setAuth();
 
       const channel = supabase
-        .channel('topic:announcements', { config: { broadcast: { self: true }, private: false } })
+        .channel('topic:announcements', { 
+          config: { 
+            broadcast: { self: true }, 
+            private: false,
+            presence: {
+              key: `admin-${Math.random()}`, // admin also joins
+            },
+          } })
         .on('broadcast', { event: 'new_message' }, (payload) => {
-          console.log('AdminMessageDisplay received new_message:', payload);
+         
           const { text, timestamp } = payload.payload;
           if (text && timestamp) {
             setMessages((prev) => [
@@ -52,6 +61,11 @@ export default function AdminMessageDisplay() {
               },
             ]);
           }
+        })
+        // Add presence tracking
+        .on('presence', { event: 'sync' }, () => {
+          const state = channel.presenceState(); // Get the list of online users
+          setOnlineUsers(Object.keys(state).length); // Count the users (keys are the user IDs)
         })
         .subscribe((status) => {
           console.log('Admin subscription status:', status);
@@ -96,6 +110,10 @@ export default function AdminMessageDisplay() {
   return (
     <div className="mt-4">
       <h2 className="text-xl mb-2">Admin Announcements</h2>
+      <br />
+      <div className="text-green-600 font-semibold">
+        👀 {onlineUsers} users viewing the messages
+      </div>
       {messages.length === 0 ? (
         <p>No announcements yet.</p>
       ) : (
