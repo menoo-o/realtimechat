@@ -66,6 +66,7 @@ export default function AdminMessageDisplay() {
         .on('presence', { event: 'sync' }, () => {
           const state = channel.presenceState(); // Get the list of online users
           setOnlineUsers(Object.keys(state).length); // Count the users (keys are the user IDs)
+          console.log('Presence state:', state); // Debug log
         })
         .on('presence', { event: 'join' }, ({ key, newPresences }) => {
           console.log('join', key, newPresences)
