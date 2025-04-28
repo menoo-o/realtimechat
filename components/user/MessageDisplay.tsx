@@ -61,11 +61,20 @@ export default function MessageDisplay() {
             ]);
           }
         })
-        .subscribe((status) => {
+
+       await changes.subscribe(async (status) => {
           console.log('Subscription status:', status); // Debug
           if (status !== 'SUBSCRIBED') {
             console.error('Not subscribed:', status);
           } else {
+            const userStatus = {
+              user: 'user-1', // Replace with actual user ID if you have authentication
+              online_at: new Date().toISOString(),
+            };
+  
+            // Track user presence
+            await changes.track(userStatus); // Track user's state to the channel
+            console.log('User state tracked:', userStatus);
             console.log('Subscribed to announcements');
           }
         });
